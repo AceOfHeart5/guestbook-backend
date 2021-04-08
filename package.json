@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/AceOfHeart5/guestbook-backend/issues"
   },
-  "homepage": "https://github.com/AceOfHeart5/guestbook-backend#readme"
+  "homepage": "https://github.com/AceOfHeart5/guestbook-backend#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
