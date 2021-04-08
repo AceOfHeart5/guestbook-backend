@@ -1,9 +1,11 @@
+require('dotenv').config();
+const { config } = require('dotenv');
 const express = require('express');
 const app = express();
-const port = 8080;
+const port = process.env.PORT;
 
 app.get('/', (req, res) => {
-  res.sendStatus(200);
+  res.sendStatus('This is the backend for the guestbook app.');
 });
 
 app.get('/env', (req, res) => {
