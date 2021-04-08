@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
-  res.send('This is the backend for the guestbook app!');
+  res.sendStatus(200);
 });
 
 app.get('/env', (req, res) => {
