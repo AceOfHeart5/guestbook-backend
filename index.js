@@ -5,7 +5,7 @@ const app = express();
 const port = process.env.PORT || process.env.PORT_DEV;
 
 app.get('/', (req, res) => {
-  res.sendStatus('This is the backend for the guestbook app.');
+    res.send('This is the backend for the guestbook app.');
 });
 
 app.get('/env', (req, res) => {
@@ -13,5 +13,5 @@ app.get('/env', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Guestbook app listening at http://localhost:${port}`);
+    console.log(`Guestbook app listening at http://localhost:${port}`);
 });
