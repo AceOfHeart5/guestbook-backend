@@ -24,9 +24,8 @@ app.get('/', (req, res) => {
     res.send('This is the guestbook app backend.');
 });
 
-app.get('/printenvs', (req, res) => {
-    console.log(process.env);
-    res.send('The environment variables have been logged to the console.');
+app.get('/env', (req, res) => {
+    res.send(process.env);
 });
 
 app.get('/getmessages', (req, res) => {
