@@ -1,16 +1,13 @@
 require('dotenv').config();
-const pgp = require('pg-promise')();
-const db = pgp({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_DATABASE,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD
-});
-
-db.connect()
+const { Client } = require('pg');
+const client = new Client(process.env.DATABASE_URL);
+client.connect()
     .then(() => console.log('connected to postgres'))
-    .catch(err => console.log(err));
+    .catch(err => {
+        console.log('postgres connection failed');
+        console.log(err)
+    })
+    .finally(() => client.end());
 
 const dbSchema = process.env.DB_SCHEMA;
 const dbTable = process.env.DB_TABLE;
@@ -25,27 +22,20 @@ app.get('/', (req, res) => {
 });
 
 app.get('/env', (req, res) => {
-    res.send(process.env);
+    console.log(process.env);
+    res.send('environment values logged to console');
 });
 
 app.get('/getmessages', (req, res) => {
-    db.any(`SELECT * FROM ${dbSchema}.${dbTable};`)
-        .then(rows => {
-            res.send(rows);
-        })
-        .catch(err => {
-            res.send(err);
-        });
+    client.query(`SELECT * FROM ${dbSchema}.${dbTable}`)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
 });
 
 app.post('/addmessage', (req, res) => {
-    db.none(`INSERT INTO ${dbTable}(${dbColumn}) VALUES(?)`, [req.body.entry])
-        .then(() => {
-            res.send(`added message: ${req.body.entry}`);
-        })
-        .catch(err => {
-            res.send(err);
-        });
+    client.query(`INSERT INTO ${dbTable}(${dbColumn}) VALUES(?);`, [req.body.entry])
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
 });
 
 app.listen(port, () => {
