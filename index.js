@@ -1,20 +1,20 @@
 require('dotenv').config();
-const mysqlConnection = require('mysql').createConnection({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
-});
-let dbConnected = true;
-mysqlConnection.connect(err => {
-    if (err) {
-        console.log(err);
-        dbConnected = false;
-    }
+const pgp = require('pg-promise')();
+const db = pgp({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_DATABASE,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD
 });
 
-const mysqlTable = process.env.MYSQL_TABLE;
-const mysqlColumn = process.env.MYSQL_COLUMN;
+db.connect()
+    .then(() => console.log('connected to postgres'))
+    .catch(err => console.log(err));
+
+const dbSchema = process.env.DB_SCHEMA;
+const dbTable = process.env.DB_TABLE;
+const dbColumn = process.env.DB_COLUMN;
 const express = require('express');
 const app = express();
 const port = process.env.PORT;
@@ -30,29 +30,23 @@ app.get('/printenvs', (req, res) => {
 });
 
 app.get('/getmessages', (req, res) => {
-    if (!dbConnected) {
-        res.send('Sql db connection failed. Check environment variables.');
-        return;
-    }
-
-    mysqlConnection.query(`SELECT * FROM ${mysqlTable};`, (err, rows, fields) => {
-        res.send(rows);
-    });
-})
+    db.any(`SELECT * FROM ${dbSchema}.${dbTable};`)
+        .then(rows => {
+            res.send(rows);
+        })
+        .catch(err => {
+            res.send(err);
+        });
+});
 
 app.post('/addmessage', (req, res) => {
-    if (!dbConnected) {
-        res.send('Sql db connection failed. Check environment variables.');
-        return;
-    }
-
-    mysqlConnection.query(`INSERT INTO ${mysqlTable}(${mysqlColumn}) VALUES(?)`, 
-        [req.body.entry],
-        function(err, result) {
-            if (err === null) res.send(`added message: ${req.body.entry}`);
-            else res.send(err);
-        }
-    );
+    db.none(`INSERT INTO ${dbTable}(${dbColumn}) VALUES(?)`, [req.body.entry])
+        .then(() => {
+            res.send(`added message: ${req.body.entry}`);
+        })
+        .catch(err => {
+            res.send(err);
+        });
 });
 
 app.listen(port, () => {
