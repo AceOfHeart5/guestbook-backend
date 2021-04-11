@@ -1,13 +1,23 @@
 require('dotenv').config();
 const { Client } = require('pg');
-const client = new Client(process.env.DATABASE_URL);
+const client = new Client({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DB,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
+
 client.connect()
     .then(() => console.log('connected to postgres'))
     .catch(err => {
         console.log('postgres connection failed');
         console.log(err)
-    })
-    .finally(() => client.end());
+    });
+    //.finally(() => client.end());
 
 const dbSchema = process.env.DB_SCHEMA;
 const dbTable = process.env.DB_TABLE;
@@ -27,8 +37,12 @@ app.get('/env', (req, res) => {
 });
 
 app.get('/getmessages', (req, res) => {
-    client.query(`SELECT * FROM ${dbSchema}.${dbTable}`)
-        .then(data => res.send(data))
+    console.log('prepare to query');
+    client.query(`SELECT * FROM public.entries;`)
+        .then(data => {
+            console.log('query success');
+            res.send(data.rows);
+        })
         .catch(err => res.send(err));
 });
 
