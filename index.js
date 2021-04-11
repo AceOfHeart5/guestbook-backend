@@ -17,11 +17,7 @@ client.connect()
         console.log('postgres connection failed');
         console.log(err)
     });
-    //.finally(() => client.end());
 
-const dbSchema = process.env.DB_SCHEMA;
-const dbTable = process.env.DB_TABLE;
-const dbColumn = process.env.DB_COLUMN;
 const express = require('express');
 const app = express();
 const port = process.env.PORT;
@@ -39,15 +35,12 @@ app.get('/env', (req, res) => {
 app.get('/getmessages', (req, res) => {
     console.log('prepare to query');
     client.query(`SELECT * FROM public.entries;`)
-        .then(data => {
-            console.log('query success');
-            res.send(data.rows);
-        })
+        .then(data => res.send(data.rows))
         .catch(err => res.send(err));
 });
 
 app.post('/addmessage', (req, res) => {
-    client.query(`INSERT INTO ${dbTable}(${dbColumn}) VALUES(?);`, [req.body.entry])
+    client.query(`INSERT INTO public.entries(entry) VALUES($1);`, [req.body.entry])
         .then(data => res.send(data))
         .catch(err => res.send(err));
 });
