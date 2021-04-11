@@ -1,3 +1,4 @@
+const cors = require('cors');
 require('dotenv').config();
 const { Client } = require('pg');
 const client = new Client({
@@ -21,6 +22,7 @@ client.connect()
 const express = require('express');
 const app = express();
 const port = process.env.PORT;
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
