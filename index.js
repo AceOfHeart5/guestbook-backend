@@ -35,7 +35,6 @@ app.get('/env', (req, res) => {
 });
 
 app.get('/getmessages', (req, res) => {
-    console.log('prepare to query');
     client.query(`SELECT * FROM public.entries;`)
         .then(data => res.send(data.rows))
         .catch(err => res.send(err));
