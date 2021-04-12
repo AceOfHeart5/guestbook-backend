@@ -11,10 +11,9 @@ module.exports.checkProfanity = function(profanityArr, string) {
     check = check.replace('!', 'i');
     check = check.replace('@', 'a');
     check = check.replace('$', 's');
-    check = check.split(' ');
     let containsProfanity = false;
     profanityArr.forEach(word => {
-        if (check.includes(word)) containsProfanity = true;
+        if (check.indexOf(word) >= 0) containsProfanity = true;
     });
     return containsProfanity;
 }

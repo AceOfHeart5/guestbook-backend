@@ -42,7 +42,7 @@ app.get('/getmessages', (req, res) => {
         .catch(err => res.send(err));
 });
 
-const profanity = process.env.PROFANITY.split(' ');
+const profanity = process.env.PROFANITY.split(',');
 app.post('/addmessage', (req, res) => {
     const response = { success: true, data: null, error: null };
     let hasProfanity = checkProfanity(profanity, req.body.entry);
