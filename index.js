@@ -1,3 +1,5 @@
+const { checkProfanity } = require('./profanity');
+console.log(checkProfanity);
 const cors = require('cors');
 require('dotenv').config();
 const { Client } = require('pg');
@@ -40,10 +42,26 @@ app.get('/getmessages', (req, res) => {
         .catch(err => res.send(err));
 });
 
+const profanity = process.env.PROFANITY.split(' ');
 app.post('/addmessage', (req, res) => {
+    const response = { success: true, data: null, error: null };
+    let hasProfanity = checkProfanity(profanity, req.body.entry);
+    if (hasProfanity) {
+        response.success = false;
+        response.error = 'contains profanity';
+        res.send(response);
+        return;
+    }
     client.query(`INSERT INTO public.entries(entry) VALUES($1);`, [req.body.entry])
-        .then(data => res.send(data))
-        .catch(err => res.send(err));
+        .then(data => {
+            response.data = data;
+            res.send(response);
+        })
+        .catch(err => {
+            response.success = false;
+            response.error = err;
+            res.send(response);
+        });
 });
 
 app.listen(port, () => {
